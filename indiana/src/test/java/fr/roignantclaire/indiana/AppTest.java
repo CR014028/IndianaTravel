@@ -74,4 +74,15 @@ public class AppTest
 
 		dataPathsName = "incorrectInput.csv";
 	}
+	
+	
+	@Test
+	public void test2() throws Exception
+	{
+		dataPathsName = "wrongPath.csv";
+		file = new FileInputStream(RESOURCES_PATH + dataPathsName);
+
+		String res = App.computePath(file);
+		assertEquals("00:18", res);
+	}
 }

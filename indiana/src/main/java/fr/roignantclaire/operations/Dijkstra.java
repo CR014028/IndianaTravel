@@ -46,7 +46,7 @@ public class Dijkstra {
 							nextStopover.setPreviousStopover(stopover);
 						}
 					}
-					shortestPath = getShortestPath(shortestPath.getArrivalTime(), nextAvailablePaths);
+					shortestPath = getShortestPath(nextAvailablePaths);
 				}
 				else {
 					lastStopover = stopover;
@@ -76,16 +76,11 @@ public class Dijkstra {
 		return roadmap;
 	}
 
-	/**
-	 * 
-	 * @param departureTime date de départ
-	 * @param paths trajets possibles
-	 * @return
-	 */
-	private static Path getShortestPath(DateTime departureTime, Set<Path> paths){
+	private static Path getShortestPath(Set<Path> paths){
 		Path shorterPath = null;
+		if (paths!=null)
 		for(Path path : paths){
-			if(shorterPath == null || (!departureTime.isAfter(path.getDepartureTime()) && path.getArrivalTime().isBefore(shorterPath.getArrivalTime()))){
+			if(shorterPath == null || path.getArrivalTime().isBefore(shorterPath.getArrivalTime())){
 				shorterPath = path;
 			}
 		}
