@@ -74,8 +74,8 @@ public class AppTest
 
 		dataPathsName = "incorrectInput.csv";
 	}
-	
-	
+
+
 	@Test
 	public void test2() throws Exception
 	{
@@ -84,5 +84,51 @@ public class AppTest
 
 		String res = App.computePath(file);
 		assertEquals("00:18", res);
+	}
+
+	@Test
+	public void test2bis()
+	{
+		try {
+			dataPathsName = "wrongPath2.csv";
+			file = new FileInputStream(RESOURCES_PATH + dataPathsName);
+
+			String res = App.computePath(file);
+			assertEquals("00:37", res);
+		}
+		catch (Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
+	public void testWiki()
+	{
+		try {
+			dataPathsName = "wiki.csv";
+			file = new FileInputStream(RESOURCES_PATH + dataPathsName);
+
+			String res = App.computePath(file);
+			assertEquals("07:47", res);
+		}
+		catch (Exception e){
+			e.printStackTrace();
+
+		}
+	}
+	
+	@Test
+	public void testCharge()
+	{
+		try {
+			dataPathsName = "testCharge4.csv";
+			file = new FileInputStream(RESOURCES_PATH + dataPathsName);
+
+			String res = App.computePath(file);
+			assertEquals("05:18", res);
+		}
+		catch (Exception e){
+			e.printStackTrace();
+		}
 	}
 }

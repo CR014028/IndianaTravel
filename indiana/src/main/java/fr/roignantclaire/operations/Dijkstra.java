@@ -12,10 +12,9 @@ import org.joda.time.DateTime;
 import fr.roignantclaire.dto.Path;
 import fr.roignantclaire.dto.Stopover;
 
-public class Dijkstra {
+public final class Dijkstra {
 
 	/**
-	 * 
 	 * @param allStopovers
 	 * @param departureTown
 	 * @param departureTime
@@ -23,68 +22,72 @@ public class Dijkstra {
 	 * @return
 	 * @throws Exception
 	 */
-	public static List<Path> computePath(final Map<String, Stopover> allStopovers, final String departureTown, final DateTime departureTime, final String destination
+	public final static List<Stopover> computePath(final Map<String, Stopover> allStopovers, final String departureTown, final DateTime departureTime, final String destination
 			) throws Exception{
-		Set<Path> nextAvailablePaths = new HashSet<Path>();
+		Set<Stopover> nextAvailableStopovers = new HashSet<Stopover>();
 
-		//First path, bed to station
-		Path shortestPath = new Path(null, null, departureTown, departureTime);
-		Stopover lastStopover = null;
+		Stopover nextStopover = null;
+		String town = departureTown;
+		Stopover stopover = allStopovers.get(departureTown);
+		stopover.setArrivalTime(departureTime);
 
-		while(shortestPath != null && lastStopover == null){
-			String town = shortestPath.getArrivalTown();
-			Stopover stopover = allStopovers.get(town);
-			nextAvailablePaths.remove(shortestPath);
-			if (stopover != null){
-				nextAvailablePaths.addAll(stopover.getNextAvailablePaths());
-				if(!town.equals(destination)){
-					for (Path newAvailablePath : stopover.getNextAvailablePaths()){
-						Stopover nextStopover = allStopovers.get(newAvailablePath.getArrivalTown());
+		while(!destination.equals(town)){
+			nextAvailableStopovers.remove(stopover);
+			allStopovers.remove(town);
+			for (Path newAvailablePath : stopover.getNextPaths()){
+				if (isDepartureTimePossible(stopover.getArrivalTime(), newAvailablePath.getDepartureTime())){
+					nextStopover = allStopovers.get(newAvailablePath.getArrivalTown());
+					if(nextStopover!=null){
+						nextAvailableStopovers.add(nextStopover);
 						if(isShortest(nextStopover.getArrivalTime(), newAvailablePath.getArrivalTime())){
 							nextStopover.setArrivalTime(newAvailablePath.getArrivalTime());
-							nextStopover.setPreviousPath(newAvailablePath);
 							nextStopover.setPreviousStopover(stopover);
 						}
 					}
-					shortestPath = getShortestPath(nextAvailablePaths);
-				}
-				else {
-					lastStopover = stopover;
 				}
 			}
+			stopover = getShortestPath(nextAvailableStopovers);
+			if (stopover == null){
+				break;
+			}
+			else {
+				town = stopover.getTown();
+			}
 		}
-
-		return computeRoadmap(lastStopover);
+		return computeRoadmap(stopover);
 	}
 
-	private static boolean isShortest(DateTime oldDate, DateTime newDateTime){
-		return oldDate == null || oldDate.isAfter(newDateTime);
+	private final static boolean isShortest(DateTime oldDate, DateTime newDate){
+		return oldDate == null || oldDate.isAfter(newDate);
 	}
 
-	private static List<Path> computeRoadmap(Stopover lastStopover) throws Exception{
+	private final static boolean isDepartureTimePossible(DateTime stopoverTime, DateTime departureTime){
+		return stopoverTime == null || !stopoverTime.isAfter(departureTime);
+	}
+
+	private static List<Stopover> computeRoadmap(Stopover lastStopover) throws Exception{
 		if (lastStopover == null){
 			throw new Exception("Destination not found");
 		}
 
-		List<Path> roadmap = new ArrayList<Path>();
+		List<Stopover> roadmap = new ArrayList<Stopover>();
 		Stopover stopover = lastStopover;
-		while(stopover != null && stopover.getPreviousPath()!=null){
-			roadmap.add(stopover.getPreviousPath());
+		while(stopover != null){
+			roadmap.add(stopover);
 			stopover = stopover.getPreviousStopover();
 		}
 		Collections.reverse(roadmap);
 		return roadmap;
 	}
 
-	private static Path getShortestPath(Set<Path> paths){
-		Path shorterPath = null;
-		if (paths!=null)
-		for(Path path : paths){
-			if(shorterPath == null || path.getArrivalTime().isBefore(shorterPath.getArrivalTime())){
-				shorterPath = path;
+	private final static Stopover getShortestPath(Set<Stopover> stopovers){
+		Stopover shorterPath = null;
+
+		for(Stopover stopover : stopovers){
+			if(shorterPath == null || stopover.getArrivalTime().isBefore(shorterPath.getArrivalTime())){
+				shorterPath = stopover;
 			}
 		}
 		return shorterPath;
 	}
-
 }

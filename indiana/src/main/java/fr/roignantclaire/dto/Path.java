@@ -59,5 +59,4 @@ public class Path {
 		.append(", arrivée à ").append(PathMapping.getFormattedDate(this.getArrivalTime()));
 		return res.toString();
 	}
-	
 }

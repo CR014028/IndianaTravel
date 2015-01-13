@@ -1,15 +1,16 @@
 package fr.roignantclaire.dto;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.joda.time.DateTime;
+
+import fr.roignantclaire.mapping.PathMapping;
 
 public class Stopover {
 
 	private String town;
-	private List<Path> nextAvailablePaths;
-	private Path previousPath;
+	private Set<Path> nextPaths;
 	private DateTime arrivalTime;
 	private Stopover previousStopover;
 	
@@ -17,12 +18,12 @@ public class Stopover {
 		this.town = town;
 	}
 	
-	public List<Path> getNextAvailablePaths() {
-		if (this.nextAvailablePaths == null){
-			this.nextAvailablePaths = new ArrayList<Path>();
+	public Set<Path> getNextPaths() {
+		if (this.nextPaths == null){
+			this.nextPaths = new HashSet<Path>();
 		}
 		
-		return nextAvailablePaths;
+		return nextPaths;
 	}
 
 	public Stopover getPreviousStopover() {
@@ -41,10 +42,6 @@ public class Stopover {
 		this.town = town;
 	}
 
-	public Path getPreviousPath() {
-		return previousPath;
-	}
-
 	public DateTime getArrivalTime() {
 		return arrivalTime;
 	}
@@ -53,13 +50,13 @@ public class Stopover {
 		this.arrivalTime = arrivalTime;
 	}
 
-	public void setPreviousPath(Path previousPath) {
-		this.previousPath = previousPath;
-	}
-
 	@Override
 	public String toString() {
-		return "Escale à "+this.town +" départ possible pour : "+this.getNextAvailablePaths();
+		StringBuilder res = new StringBuilder();		
+		res.append("Escale à ").append(this.getTown() == null ? "": this.getTown())
+		.append(" à ").append(this.getArrivalTime() == null ? "?" : PathMapping.getFormattedDate(this.getArrivalTime()))
+		.append(" départ possible pour : ").append(this.getNextPaths());
+		return res.toString();
 	}
 
 	@Override

@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.joda.time.DateTime;
 
-import fr.roignantclaire.dto.Path;
 import fr.roignantclaire.dto.Stopover;
 import fr.roignantclaire.mapping.PathMapping;
 import fr.roignantclaire.operations.Dijkstra;
@@ -52,22 +51,21 @@ public class App
 				reader.close();
 			}
 		}
-		
-		String departureTown = firstLineTab[1];//"Paris"
-		String destinationTown = firstLineTab[2];//"Berlin"
-		DateTime departureTime = PathMapping.getDate(firstLineTab[0], destinationTown);//TrajetMapping.getDate("08:20")
+
+		String departureTown = firstLineTab == null ? "" : firstLineTab[1];//"Paris"
+		String destinationTown = firstLineTab == null ? "" : firstLineTab[2];//"Berlin"
+		DateTime departureTime = firstLineTab == null ? null : PathMapping.getDate(firstLineTab[0]/*, destinationTown*/);//TrajetMapping.getDate("08:20")
 		if("".equals(departureTown) || "".equals(destinationTown)){
 			throw new Exception("Departure or destination required");
 		}
-
-		List<Path> roadmap = Dijkstra.computePath(stopovers, departureTown, departureTime, destinationTown);
+		List<Stopover> roadmap = Dijkstra.computePath(stopovers, departureTown, departureTime, destinationTown);
 
 		String res = "";
-		for(Path path : roadmap){
-			if (destinationTown.equals(path.getArrivalTown())){
-				res = PathMapping.getFormattedDate(path.getArrivalTime());
+		for(Stopover stopover : roadmap){
+			if (destinationTown.equals(stopover.getTown())){
+				res = PathMapping.getFormattedDate(stopover.getArrivalTime());
 			}
-			System.out.println(path);
+			System.out.println(stopover.getTown()+" à "+PathMapping.getFormattedDate(stopover.getArrivalTime()));
 		}
 
 		return res;
